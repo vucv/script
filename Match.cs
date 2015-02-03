@@ -7,7 +7,7 @@ namespace AssemblyCSharp
 		//AI
 		//Turn
 		private int turnToken;
-		private static Match INSTANCE; 
+		private static Match INSTANCE;
 		public static Match getInstance()
 		{
 			if (INSTANCE!=null){
@@ -22,7 +22,11 @@ namespace AssemblyCSharp
 
 		public void Update()
 		{
-			switch (turnToken) 
+			if(Board.getInstance().b)
+			{
+				rematch
+			}
+			switch (turnToken)
 			{
 			case 0:
 				//Player

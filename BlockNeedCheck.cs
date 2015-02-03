@@ -3,12 +3,15 @@ namespace AssemblyCSharp
 {
 	public class Board
 	{
-	    public int x1;
-	    public int x2;
-	    public int y1;
-	    public int y2;
+	    public int x;
+	    public int y;
 
-	    int[] matchBlock;
+		public int top;
+		public int bottom;
+		public int left;
+		public int right;
+
+		public bool isMatch;
 	}
 
 }
