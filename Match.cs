@@ -33,6 +33,7 @@ namespace AssemblyCSharp
 				break;
 			case 1:
 				//AI
+				AI.getInstance().startAI();
 				break;
 			}
 		}
