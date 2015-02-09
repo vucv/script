@@ -1,7 +1,7 @@
 using System;
 namespace AssemblyCSharp
 {
-	public class Board
+	public class BlockNeedCheck
 	{
 	    public int x;
 	    public int y;

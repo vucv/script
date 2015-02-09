@@ -1,7 +1,7 @@
 using System;
 namespace AssemblyCSharp
 {
-	public class BlockCanMove
+	public class Score
 	{
 		public int x1;
 		public int y1;

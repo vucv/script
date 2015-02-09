@@ -9,6 +9,7 @@ namespace AssemblyCSharp
 		BlockNeedDestroy[] blockNeedDestroys;
 		BlockCanMove[] blockCanMoves;
 		BasicBlock [,] listGameObject;
+		int multiply;
 		private static Board INSTANCE;
 		public static Board getInstance()
 		{
@@ -28,8 +29,7 @@ namespace AssemblyCSharp
 			blockNeedChecks.add(new blockNeedChecks(x2,y2));
 
 			//Call check ...
-			int multiply = 1;
-			scores = new ();
+			multiply = 1;
 			while (blockNeedChecks.length != 0)
 			{
 				checkMatch();
@@ -108,7 +108,7 @@ namespace AssemblyCSharp
 				V = blockNeedChecks[i].top + blockNeedChecks[i].bottom;
 				if(H >=3)
 				{
-					i = blockNeedChecks[i].left
+					i = blockNeedChecks[i].left;
 					while (i>0)
 					{
 						blockNeedDestroys.add(x-i,y);
@@ -124,7 +124,7 @@ namespace AssemblyCSharp
 
 				if(V >=3)
 				{
-					i = blockNeedChecks[i].top
+					i = blockNeedChecks[i].top;
 					while (i>0)
 					{
 						blockNeedDestroys.add(x,y-i);
@@ -149,7 +149,7 @@ namespace AssemblyCSharp
 		public void destroysBlock()
 		{
 			//Get list destroys , add scores
-			int length = blockNeedDestroys.length;
+			int length = blockNeedDestroys.Size();
 			for(int i = 0; i< length; i++)
 			{
 				//TODO : Destroy game object & create effect
@@ -157,8 +157,8 @@ namespace AssemblyCSharp
 			}
 			for(int i = 0; i< length; i++)
 			{
-				blockNeedDestroys
-				this.block[x,y] = -1;
+				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
+				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
 				updatePlayer(blockNeedDestroys.type);
 				moveDown(x,y);
 			}
@@ -166,13 +166,13 @@ namespace AssemblyCSharp
 
 		public void updatePlayer(int typeBlock)
 		{
-			Match.getInstance().turn
+			//Match.getInstance().turn
 
-			switch(typeBlock)
-			{
+			//switch(typeBlock)
+			//{
 
 
-			}
+			//}
 		}
 		public void moveDown()
 		{
@@ -192,7 +192,7 @@ namespace AssemblyCSharp
 
 		public void generateBlockType(int x, int y, int type)
 		{
-			listGameObject[x,y] = new BasicBlock;
+			//listGameObject[x,y] = new BasicBlock;
 			//set...
 		}
 

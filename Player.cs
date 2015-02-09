@@ -18,7 +18,7 @@ namespace AssemblyCSharp
 		}
 
 		// Return list block destroy
-		public void void useSkill(int skillNumber)
+		public void useSkill(int skillNumber)
 		{
 			int i = this.s.a();//Luot danh 0|1
 			bn localbn1 = this.s.b(i);//get Info 1

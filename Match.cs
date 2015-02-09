@@ -22,9 +22,9 @@ namespace AssemblyCSharp
 
 		public void Update()
 		{
-			if(Board.getInstance().b)
+			if(Board.getInstance())
 			{
-				rematch
+				//rematch
 			}
 			switch (turnToken)
 			{
