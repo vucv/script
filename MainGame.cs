@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using AssemblyCSharp;
 
 public class MainGame : MonoBehaviour {
 
@@ -17,6 +18,7 @@ public class MainGame : MonoBehaviour {
 		case Stage.MAP:
 			break;
 		case Stage.MATCH:
+			Match.getInstance().Update();
 			break;
 		default:
 			//Log err

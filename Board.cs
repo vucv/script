@@ -1,40 +1,46 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 namespace AssemblyCSharp
 {
 	public class Board
 	{
 		//Board
 		int [,] blocks;
-		BlockNeedCheck[] blockNeedChecks;
-		BlockNeedDestroy[] blockNeedDestroys;
-		BlockCanMove[] blockCanMoves;
+		List<BlockNeedCheck> blockNeedChecks;
+		List<BlockNeedDestroy> blockNeedDestroys;
+		List<BlockCanMove> blockCanMoves;
 		BasicBlock [,] listGameObject;
 		int multiply;
 		private static Board INSTANCE;
 		public static Board getInstance()
 		{
-			if (INSTANCE!=null){
+			if (INSTANCE==null){
 				INSTANCE = new Board();
 			}
 			return INSTANCE;
 		}
 		public Board ()
 		{
+			blockNeedChecks = new List<BlockNeedCheck> ();
+			blockNeedDestroys = new List<BlockNeedDestroy> ();
+			blockCanMoves = new List<BlockCanMove> ();
+			listGameObject = new BasicBlock[8, 8];
 		}
 
 		public void moveBlock(int x1, int y1, int x2, int y2)
 		{
 			this.swapBlock(x1,y2,x1,y2);
-			blockNeedChecks.add(new blockNeedChecks(x1,y1));
-			blockNeedChecks.add(new blockNeedChecks(x2,y2));
+			blockNeedChecks.Add(new BlockNeedCheck(x1,y1));
+			blockNeedChecks.Add(new BlockNeedCheck(x2,y2));
 
 			//Call check ...
 			multiply = 1;
-			while (blockNeedChecks.length != 0)
+			while (blockNeedChecks.Count != 0)
 			{
 				checkMatch();
 				destroysBlock();
-				updateUser();
 				multiply++;
 			}
 
@@ -47,100 +53,68 @@ namespace AssemblyCSharp
 				for (int j = 0; j < 8; j++) {
 					BlockCanMove block = checkCanMove(i, j, i + 1, j);
 					if (block != null) {
-						blockCanMoves.add(block);
+						blockCanMoves.Add(block);
 					}
 					block = checkCanMove(i, j, i, j + 1);
 					if (block != null) {
-						blockCanMoves.add(block);
+						blockCanMoves.Add(block);
 					}
 				}
 			}
 		}
 
 		private BlockCanMove checkCanMove(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
-			try {
-				if (this.block[paramInt1,paramInt2] == this.block[paramInt3][paramInt4]) {
-					return null;
-				}
-				if ((this.block[paramInt1][paramInt2] >= 7) || (this.block[paramInt3][paramInt4] >= 7)) {
-					return null;
-				}
-				//swap for check score
-				swapBlock(paramInt1, paramInt2, paramInt3, paramInt4);
-				int i = 0;
-				//check move 4 de
-				int j = checkMatchVertical(paramInt1, paramInt2);
-				int i1 = checkMatchHorizontal(paramInt1, paramInt2);
-				int i2 = checkMatchVertical(paramInt3, paramInt4);
-				int i3 = checkMatchHorizontal(paramInt3, paramInt4);
-				if (((j & 0xFF) >= 3) || ((i1 & 0xFF) >= 3) || ((i2 & 0xFF) >= 3) || ((i3 & 0xFF) >= 3)) {
-					i = 1;
-				}
-				//reswap
-				swapBlock(paramInt1, paramInt2, paramInt3, paramInt4);
-				if (i != 0) {
-					int[] arrayOfInt = {j, i1, i2, i3};
-					BlockCanMove block = new BlockCanMove();
-					locala.a = paramInt1;
-					locala.b = paramInt2;
-					locala.c = paramInt3;
-					locala.d = paramInt4;
-					locala.e = arrayOfInt;
-					return locala;
-				}
-			} catch (Exception localException) {
-				localException.printStackTrace();
-			}
 			return null;
 		}
 
 		//Check all list needed
 		public void checkMatch()
 		{
-			int length = blockNeedChecks.length;
+			int length = blockNeedChecks.Count;
 			for(int i = 0; i< length; i++)
 			{
+				BlockNeedCheck block = blockNeedChecks[i];
 				//Check block
-				this.checkMatchAt(blockNeedChecks[i]);
+				this.checkMatchAt(block);
 
 				//Check destroys
-				H = blockNeedChecks[i].left + blockNeedChecks[i].right;
-				V = blockNeedChecks[i].top + blockNeedChecks[i].bottom;
+				int H = block.left + block.right;
+				int V = block.top + block.bottom;
 				if(H >=3)
 				{
-					i = blockNeedChecks[i].left;
+					i = block.left;
 					while (i>0)
 					{
-						blockNeedDestroys.add(x-i,y);
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x-i,block.y));
 						i--;
 					}
-					i = blockNeedChecks[i].right;
+					i = block.right;
 					while (i>0)
 					{
-						blockNeedDestroys.add(x+i,y);
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x+i,block.y));
 						i--;
 					}
 				}
 
 				if(V >=3)
 				{
-					i = blockNeedChecks[i].top;
+					i = block.top;
 					while (i>0)
 					{
-						blockNeedDestroys.add(x,y-i);
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y-i));
 						i--;
 					}
-					i = blockNeedChecks[i].bottom;
+					i = block.bottom;
 					while (i>0)
 					{
-						blockNeedDestroys.add(x,y+i);
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y+i));
 						i--;
 					}
 				}
 
 				if(H>4 || V>4)
 				{
-					scores.turn ++;
+					//scores.turn ++;
 				}
 			}
 			//Clean list need check
@@ -149,7 +123,7 @@ namespace AssemblyCSharp
 		public void destroysBlock()
 		{
 			//Get list destroys , add scores
-			int length = blockNeedDestroys.Size();
+			int length = blockNeedDestroys.Count;
 			for(int i = 0; i< length; i++)
 			{
 				//TODO : Destroy game object & create effect
@@ -161,8 +135,8 @@ namespace AssemblyCSharp
 			{
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
 				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
-				updatePlayer(blockNeedDestroys.type);
-				moveDown(x,y);
+				updatePlayer(blockDestroy.type);
+				moveDown(blockDestroy.x,blockDestroy.y);
 			}
 		}
 
@@ -176,20 +150,20 @@ namespace AssemblyCSharp
 
 			//}
 		}
-		public void moveDown()
+		public void moveDown(int x, int y)
 		{
 			for(int i = y; i < 1; i--)
 			{
-				this.block[x,i] = this.block[x,i-1];
+				this.blocks[x,i] = this.blocks[x,i-1];
 				//TODO : Update position game object
-				listGameObject[x,i].setY(i-1);
+				listGameObject[x,i].y = i-1;
 				//Add this block to list need check
-				blockNeedChecks.add(new blockNeedChecks(x,i));
+				blockNeedChecks.Add(new BlockNeedCheck(x,i));
 			}
 
-			this.block[x,0] = generateBlockType();
+			this.blocks[x,0] = generateBlockType();
 			//TODO : Create game object
-			this.generateBlockType(x,0,this.block[x,0]);
+			this.generateBlockType(x,0,this.blocks[x,0]);
 		}
 
 		public void generateBlockType(int x, int y, int type)
@@ -200,8 +174,8 @@ namespace AssemblyCSharp
 
 		public int generateBlockType()
 		{
-			int typeBlock = ay.a(e.h.length);
-			if ((typeBlock == 0) && (ay.a(100) < 11)) {
+			int typeBlock = UnityEngine.Random.Range(0,5);
+			if ((typeBlock == 0) && (UnityEngine.Random.Range(0,100) < 11)) {
 				typeBlock = 6;
 			}
 			return typeBlock;
@@ -218,23 +192,25 @@ namespace AssemblyCSharp
 		{
 			this.blocks = new int[8,8];
 			int blockTypeList = 5;
-			boolean opp = true;
-			for (int i = 0; i < 8; i++) {
+			int m;
+			int i;
+			bool opp = true;
+			for (i = 0; i < 8; i++) {
 				m = opp ? 1 : 0;// xen ke
 				opp = !opp;//
 				while (m < 8) {
-					this.blocks[i,m] = ay.a(blockTypeList);//0->5.0
+					this.blocks[i,m] = UnityEngine.Random.Range(0,blockTypeList);//0->5.0
 					this.generateBlockType(i,m,this.blocks[i,m]);
 					m += 2;
 				}
 			}
-			i = ay.a(3) + 2 + 2;
-			int m = ay.a(4) + 1 + 2;
+			i = UnityEngine.Random.Range(0,3) + 2 + 2;
+			m = UnityEngine.Random.Range(0,4) + 1 + 2;
 			//Maybe default 7
-			if (paramArrayOfInt[i][m] != 7) {
+			if (this.blocks[i,m] != 7) {
 				i--;
 			}
-			int n = ay.a(4);
+			int n = UnityEngine.Random.Range(0,4);
 			//Random can move
 			switch (n) {
 				case 0:
@@ -256,6 +232,7 @@ namespace AssemblyCSharp
 					int tmp262_261 = this.blocks[i,(m + 1)];
 					this.blocks[(i + 1),m] = tmp262_261;
 					this.blocks[(i - 1),m] = tmp262_261;
+					break;
 			}
 			opp = false;
 			// Random other, not match
@@ -263,11 +240,11 @@ namespace AssemblyCSharp
 				int i2 = opp ? 1 : 0;
 				opp = !opp;//
 				while (i2 < 8) {
-					boolean[] arrayOfBoolean = new boolean[e.h.length];
-					int i3 = this.blocks[i1][(i2 - 1)];
-					int i4 = this.blocks[i1][(i2 - 2)];
-					int i5 = this.blocks[i1][(i2 + 1)];
-					int i6 = this.blocks[i1][(i2 + 2)];
+					bool[] arrayOfBoolean = new bool[5];
+					int i3 = this.blocks[i1,(i2 - 1)];
+					int i4 = this.blocks[i1,(i2 - 2)];
+					int i5 = this.blocks[i1,(i2 + 1)];
+					int i6 = this.blocks[i1,(i2 + 2)];
 					if (i3 == i4) {
 						arrayOfBoolean[i3] = true;
 					}
@@ -277,10 +254,10 @@ namespace AssemblyCSharp
 					if (i5 == i3) {
 						arrayOfBoolean[i3] = true;
 					}
-					int i7 = this.blocks[(i1 - 1)][i2];
-					int i8 = this.blocks[(i1 - 2)][i2];
-					int i9 = this.blocks[(i1 + 1)][i2];
-					int i10 = this.blocks[(i1 + 2)][i2];
+					int i7 = this.blocks[(i1 - 1),i2];
+					int i8 = this.blocks[(i1 - 2),i2];
+					int i9 = this.blocks[(i1 + 1),i2];
+					int i10 = this.blocks[(i1 + 2),i2];
 					if (i7 == i8) {
 						arrayOfBoolean[i7] = true;
 					}
@@ -290,13 +267,13 @@ namespace AssemblyCSharp
 					if (i7 == i9) {
 						arrayOfBoolean[i7] = true;
 					}
-					int i11 = ay.a(arrayOfBoolean.length);
-					if (arrayOfBoolean[i11] != 0) {
+					int i11 = UnityEngine.Random.Range(0,arrayOfBoolean.Length);
+					if (arrayOfBoolean[i11]) {
 						do {
-							i11 = (i11 + 1) % arrayOfBoolean.length;
-						} while (arrayOfBoolean[i11] != 0);
+							i11 = (i11 + 1) % arrayOfBoolean.Length;
+						} while (arrayOfBoolean[i11]);
 					}
-					this.blocks[i1][i2] = i11;
+					this.blocks[i1,i2] = i11;
 					this.generateBlockType(i1,i2,i11);
 					i2 += 2;
 				}
@@ -306,7 +283,7 @@ namespace AssemblyCSharp
 		public BlockNeedCheck checkMatchAt(BlockNeedCheck block)
 		{
 			//check top ...
-			return BlockNeedCheck;
+			return null;
 		}
 
 		//check match V
@@ -342,14 +319,14 @@ namespace AssemblyCSharp
 			int numberBlock = 1;
 			int typeBlock = this.blocks[x,y];
 			//Check left
-			while (typeBlock == this.blocks[(x - i1),y]) {
+			while (typeBlock == this.blocks[(x - numberBlock),y]) {
 				numberBlock++;
 				countMatch++;
 			}
 
 			numberBlock = 1;
 			//Check right
-			while (typeBlock == this.blocks[(x + i1),y]) {
+			while (typeBlock == this.blocks[(x + numberBlock),y]) {
 				numberBlock++;
 				countMatch++;
 			}

@@ -5,11 +5,10 @@ namespace AssemblyCSharp
 	{
 		public Block select1;
 		public Block select2;
-		public
 		private static Hero INSTANCE;
     	public static Hero getInstance()
     	{
-    		if (INSTANCE!=null){
+			if (INSTANCE==null){
     			INSTANCE = new Hero();
     		}
     		return INSTANCE;

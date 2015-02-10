@@ -10,7 +10,7 @@ namespace AssemblyCSharp
 		private static Match INSTANCE;
 		public static Match getInstance()
 		{
-			if (INSTANCE!=null){
+			if (INSTANCE==null){
 				INSTANCE = new Match();
 			}
 			return INSTANCE;
@@ -18,14 +18,15 @@ namespace AssemblyCSharp
 
 		public Match ()
 		{
+			Board.getInstance ().generateBoard();
 		}
 
 		public void Update()
 		{
-			if(Board.getInstance())
-			{
+			//if(Board.getInstance())
+			//{
 				//rematch
-			}
+			//}
 			switch (turnToken)
 			{
 			case 0:

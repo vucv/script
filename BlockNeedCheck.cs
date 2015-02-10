@@ -12,6 +12,13 @@ namespace AssemblyCSharp
 		public int right;
 
 		public bool isMatch;
+
+		public BlockNeedCheck(int x, int y)
+		{
+			this.x = x;
+			this.y = y;
+		}
+
 	}
 
 }

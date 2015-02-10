@@ -10,7 +10,7 @@ namespace AssemblyCSharp
 		private static AI INSTANCE;
 		public static AI getInstance()
 		{
-			if (INSTANCE!=null){
+			if (INSTANCE==null){
 				INSTANCE = new AI();
 			}
 			return INSTANCE;
@@ -18,10 +18,10 @@ namespace AssemblyCSharp
 
 		public void startAI()
 		{
-			listCanMove  = Board.getInstance().blockCanMoves;
-			blockCanMove = listCanMove[0];
+			//listCanMove  = Board.getInstance().blockCanMoves;
+			//blockCanMove = listCanMove[0];
 
-			moveBlock(blockCanMove.x1,blockCanMove.y1,blockCanMove.x2,blockCanMove.y2);
+			//moveBlock(blockCanMove.x1,blockCanMove.y1,blockCanMove.x2,blockCanMove.y2);
 		}
 	}
 }
