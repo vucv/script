@@ -5,9 +5,9 @@ public class MainGame : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		GameStage.getInstance().stage = Stage.MATCH;
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		switch(GameStage.getInstance().stage)

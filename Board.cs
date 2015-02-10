@@ -153,8 +153,10 @@ namespace AssemblyCSharp
 			for(int i = 0; i< length; i++)
 			{
 				//TODO : Destroy game object & create effect
-
+				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
+				listGameObject[blockDestroy.x,blockDestroy.y].destroysBlock();
 			}
+
 			for(int i = 0; i< length; i++)
 			{
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
@@ -192,7 +194,7 @@ namespace AssemblyCSharp
 
 		public void generateBlockType(int x, int y, int type)
 		{
-			//listGameObject[x,y] = new BasicBlock;
+			listGameObject[x,y] = new BasicBlock(x,y,type);
 			//set...
 		}
 
