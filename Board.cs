@@ -78,37 +78,38 @@ namespace AssemblyCSharp
 				this.checkMatchAt(block);
 
 				//Check destroys
-				int H = block.left + block.right;
-				int V = block.top + block.bottom;
+				int H = block.left + block.right -1;
+				int V = block.top + block.bottom -1;
+				int j = 0;
 				if(H >=3)
 				{
-					i = block.left;
-					while (i>0)
+					j = block.left;
+					while (j>0)
 					{
-						blockNeedDestroys.Add(new BlockNeedDestroy(block.x-i,block.y));
-						i--;
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x-j,block.y));
+						j--;
 					}
-					i = block.right;
+					j = block.right;
 					while (i>0)
 					{
-						blockNeedDestroys.Add(new BlockNeedDestroy(block.x+i,block.y));
-						i--;
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x+j,block.y));
+						j--;
 					}
 				}
 
 				if(V >=3)
 				{
-					i = block.top;
+					j = block.top;
 					while (i>0)
 					{
-						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y-i));
-						i--;
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y-j));
+						j--;
 					}
-					i = block.bottom;
+					j = block.bottom;
 					while (i>0)
 					{
-						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y+i));
-						i--;
+						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y+j));
+						j--;
 					}
 				}
 
@@ -241,10 +242,22 @@ namespace AssemblyCSharp
 				opp = !opp;//
 				while (i2 < 8) {
 					bool[] arrayOfBoolean = new bool[5];
-					int i3 = this.blocks[i1,(i2 - 1)];
-					int i4 = this.blocks[i1,(i2 - 2)];
-					int i5 = this.blocks[i1,(i2 + 1)];
-					int i6 = this.blocks[i1,(i2 + 2)];
+					if(i2 > 1)
+						int i3 = this.blocks[i1,(i2 - 1)];
+					else int i3 = -1;
+
+					if(i2 > 2)
+						int i4 = this.blocks[i1,(i2 - 2)];
+					else int i4 = -1;
+
+					if(i2 < 7)
+						int i5 = this.blocks[i1,(i2 + 1)];
+					else int i5 = -1;
+
+					if(i2 < 6)
+						int i6 = this.blocks[i1,(i2 + 2)];
+					else int i6 = -1;
+
 					if (i3 == i4) {
 						arrayOfBoolean[i3] = true;
 					}
@@ -254,10 +267,23 @@ namespace AssemblyCSharp
 					if (i5 == i3) {
 						arrayOfBoolean[i3] = true;
 					}
-					int i7 = this.blocks[(i1 - 1),i2];
-					int i8 = this.blocks[(i1 - 2),i2];
-					int i9 = this.blocks[(i1 + 1),i2];
-					int i10 = this.blocks[(i1 + 2),i2];
+
+					if(i1 > 1)
+						int i7 = this.blocks[(i1 - 1),i2];
+					else int i7 = -1;
+
+					if(i1 > 2)
+						int i8 = this.blocks[(i1 - 2),i2];
+					else int i8 = -1;
+
+					if(i1 < 7)
+						int i9 = this.blocks[(i1 + 1),i2];
+					else int i9 = -1;
+
+					if(i1 < 6)
+						int i10 = this.blocks[(i1 + 2),i2];
+					else int i10 = -1;
+
 					if (i7 == i8) {
 						arrayOfBoolean[i7] = true;
 					}
@@ -280,14 +306,18 @@ namespace AssemblyCSharp
 			}
 		}
 
-		public BlockNeedCheck checkMatchAt(BlockNeedCheck block)
+		public void checkMatchAt(BlockNeedCheck block)
 		{
 			//check top ...
-			return null;
+			checkMatchVertical(block);
+			checkMatchHorizontal(block);
 		}
 
 		//check match V
-		public int checkMatchVertical(int x, int y) {
+		public int checkMatchVertical(BlockNeedCheck block) {
+			int x = block.x;
+			int y = block.y;
+
 			if (this.blocks[x,y] >= 7) {
 				return 0;
 			}
@@ -299,19 +329,21 @@ namespace AssemblyCSharp
 				numberBlock++;
 				countMatch++;
 			}
-
+			block.top = numberBlock;
 			numberBlock = 1;
 			//Check top
 			while (typeBlock == this.blocks[x,(y + numberBlock)]) {
 				numberBlock++;
 				countMatch++;
 			}
-
+			block.bottom = numberBlock;
 			return countMatch;
 		}
 
 		//check match H
-		public int checkMatchHorizontal(int x, int y) {
+		public int checkMatchHorizontal(BlockNeedCheck block) {
+			int x = block.x;
+			int y = block.y;
 			if (this.blocks[x,y] >= 7) {
 				return 0;
 			}
@@ -323,14 +355,14 @@ namespace AssemblyCSharp
 				numberBlock++;
 				countMatch++;
 			}
-
+			block.left = numberBlock;
 			numberBlock = 1;
 			//Check right
 			while (typeBlock == this.blocks[(x + numberBlock),y]) {
 				numberBlock++;
 				countMatch++;
 			}
-
+			block.right = numberBlock;
 			return countMatch;
 		}
 	}
