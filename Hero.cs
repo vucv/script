@@ -20,6 +20,8 @@ namespace AssemblyCSharp
 		public void moveSelectBlock()
 		{
 			this.moveBlock(select1.x,select1.y,select2.x,select2.y);
+			select1 = null;
+			select2 = null;
 		}
 
 	}

@@ -12,7 +12,7 @@ namespace AssemblyCSharp
 
 		public void moveBlock(int x1, int y1, int x2, int y2)
 		{
-			Board.getInstance ().moveBlock (x1,x2,y1,y2);
+			Board.getInstance ().moveBlock (x1,y1,x2,y2);
 			//Check match at block1, block2
 
 		}
@@ -21,7 +21,7 @@ namespace AssemblyCSharp
 		// Check condition before
 		public void useSkill(int skillNumber)
 		{
-
+			/*
 			int i1 = arrayOfInt[paramInt];
 			localbn1.a(localbn1.n() * (paramInt + 1) / 3, true);
 			int i2;
@@ -200,7 +200,9 @@ namespace AssemblyCSharp
 			}
 			this.C = this.t.a(i1, i, this.y, this.z);
 			bs.a().a(i1);
+		*/
 		}
+
 	}
 }
 

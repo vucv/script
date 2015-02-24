@@ -11,7 +11,7 @@ namespace AssemblyCSharp
 		List<BlockNeedCheck> blockNeedChecks;
 		List<BlockNeedDestroy> blockNeedDestroys;
 		List<BlockCanMove> blockCanMoves;
-		BasicBlock [,] listGameObject;
+		GameObject [,] listGameObject;
 		int multiply;
 		private static Board INSTANCE;
 		public static Board getInstance()
@@ -26,12 +26,12 @@ namespace AssemblyCSharp
 			blockNeedChecks = new List<BlockNeedCheck> ();
 			blockNeedDestroys = new List<BlockNeedDestroy> ();
 			blockCanMoves = new List<BlockCanMove> ();
-			listGameObject = new BasicBlock[8, 8];
+			listGameObject = new GameObject[8, 8];
 		}
 
 		public void moveBlock(int x1, int y1, int x2, int y2)
 		{
-			this.swapBlock(x1,y2,x1,y2);
+			this.swapBlock(x1,y1,x2,y2);
 			blockNeedChecks.Add(new BlockNeedCheck(x1,y1));
 			blockNeedChecks.Add(new BlockNeedCheck(x2,y2));
 
@@ -83,14 +83,14 @@ namespace AssemblyCSharp
 				int j = 0;
 				if(H >=3)
 				{
-					j = block.left;
+					j = block.left -1;
 					while (j>0)
 					{
 						blockNeedDestroys.Add(new BlockNeedDestroy(block.x-j,block.y));
 						j--;
 					}
-					j = block.right;
-					while (i>0)
+					j = block.right -1;
+					while (j>0)
 					{
 						blockNeedDestroys.Add(new BlockNeedDestroy(block.x+j,block.y));
 						j--;
@@ -99,18 +99,23 @@ namespace AssemblyCSharp
 
 				if(V >=3)
 				{
-					j = block.top;
-					while (i>0)
+					j = block.top -1;
+					while (j>0)
 					{
 						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y-j));
 						j--;
 					}
-					j = block.bottom;
-					while (i>0)
+					j = block.bottom -1;
+					while (j>0)
 					{
 						blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y+j));
 						j--;
 					}
+				}
+
+				if(V >=3 || H >= 3)
+				{
+					blockNeedDestroys.Add(new BlockNeedDestroy(block.x,block.y));
 				}
 
 				if(H>4 || V>4)
@@ -119,6 +124,7 @@ namespace AssemblyCSharp
 				}
 			}
 			//Clean list need check
+			blockNeedChecks.Clear ();
 		}
 
 		public void destroysBlock()
@@ -129,7 +135,9 @@ namespace AssemblyCSharp
 			{
 				//TODO : Destroy game object & create effect
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
-				listGameObject[blockDestroy.x,blockDestroy.y].destroysBlock();
+
+				BasicBlock scriptBlock = listGameObject [blockDestroy.x,blockDestroy.y].GetComponent<BasicBlock> ();
+				scriptBlock.destroysBlock();
 			}
 
 			for(int i = 0; i< length; i++)
@@ -139,6 +147,8 @@ namespace AssemblyCSharp
 				updatePlayer(blockDestroy.type);
 				moveDown(blockDestroy.x,blockDestroy.y);
 			}
+
+			blockNeedDestroys.Clear ();
 		}
 
 		public void updatePlayer(int typeBlock)
@@ -153,14 +163,24 @@ namespace AssemblyCSharp
 		}
 		public void moveDown(int x, int y)
 		{
-			for(int i = y; i < 1; i--)
+			for(int i = y; i > 0; i--)
 			{
 				this.blocks[x,i] = this.blocks[x,i-1];
 				//TODO : Update position game object
-				listGameObject[x,i].y = i-1;
+				//BasicBlock scriptBlock = listGameObject [x,i].GetComponent<BasicBlock> ();
+				//scriptBlock.y = i-1;
+				//this.swapBlock(x,i,x,i-1);
+
+				listGameObject [x, i] = listGameObject [x, i-1];
+				BasicBlock scriptBlock = listGameObject [x, i].GetComponent<BasicBlock> ();
+				scriptBlock.updatePosition (x,i);
+
+				//scriptBlock.updatePosition (-x,i);
+
 				//Add this block to list need check
-				blockNeedChecks.Add(new BlockNeedCheck(x,i));
+				//blockNeedChecks.Add(new BlockNeedCheck(x,i));
 			}
+			//blockNeedChecks.Add(new BlockNeedCheck(x,0));
 
 			this.blocks[x,0] = generateBlockType();
 			//TODO : Create game object
@@ -169,7 +189,9 @@ namespace AssemblyCSharp
 
 		public void generateBlockType(int x, int y, int type)
 		{
-			listGameObject[x,y] = new BasicBlock(x,y,type);
+			listGameObject[x,y] = (GameObject)GameObject.Instantiate(Resources.Load<GameObject>("prefabs/BlockBasic"));
+			BasicBlock scriptBlock = listGameObject [x, y].GetComponent<BasicBlock> ();
+			scriptBlock.init(x,y,type);
 			//set...
 		}
 
@@ -187,12 +209,23 @@ namespace AssemblyCSharp
 			int temp = this.blocks[x1,y1];
 			this.blocks[x1,y1] = this.blocks[x2,y2];
 			this.blocks[x2,y2] = temp;
+
+
+			BasicBlock scriptBlock = listGameObject [x1, y1].GetComponent<BasicBlock> ();
+			scriptBlock.updatePosition (x2,y2);
+			BasicBlock scriptBlock1 = listGameObject [x2, y2].GetComponent<BasicBlock> ();
+			scriptBlock1.updatePosition (x1,y1);
+
+			GameObject tempObject = listGameObject [x1, y1];
+			listGameObject [x1, y1] = listGameObject [x2, y2];
+			listGameObject [x2, y2] = tempObject;
+
 		}
 
 		public void generateBoard()
 		{
 			this.blocks = new int[8,8];
-			int blockTypeList = 5;
+			int blockTypeList = 6;
 			int m;
 			int i;
 			bool opp = true;
@@ -211,7 +244,7 @@ namespace AssemblyCSharp
 			if (this.blocks[i,m] != 7) {
 				i--;
 			}
-			int n = UnityEngine.Random.Range(0,4);
+			int n = UnityEngine.Random.Range(0,6);
 			//Random can move
 			switch (n) {
 				case 0:
@@ -241,56 +274,57 @@ namespace AssemblyCSharp
 				int i2 = opp ? 1 : 0;
 				opp = !opp;//
 				while (i2 < 8) {
-					bool[] arrayOfBoolean = new bool[5];
+					bool[] arrayOfBoolean = new bool[6];
+					int i3,i4,i5,i6,i7,i8,i9,i10;
 					if(i2 > 1)
-						int i3 = this.blocks[i1,(i2 - 1)];
-					else int i3 = -1;
+						 i3 = this.blocks[i1,(i2 - 1)];
+					else i3 = -1;
 
 					if(i2 > 2)
-						int i4 = this.blocks[i1,(i2 - 2)];
-					else int i4 = -1;
+						 i4 = this.blocks[i1,(i2 - 2)];
+					else  i4 = -1;
 
 					if(i2 < 7)
-						int i5 = this.blocks[i1,(i2 + 1)];
-					else int i5 = -1;
+						 i5 = this.blocks[i1,(i2 + 1)];
+					else  i5 = -1;
 
 					if(i2 < 6)
-						int i6 = this.blocks[i1,(i2 + 2)];
-					else int i6 = -1;
+						 i6 = this.blocks[i1,(i2 + 2)];
+					else  i6 = -1;
 
-					if (i3 == i4) {
+					if (i3 != -1 && i3 == i4) {
 						arrayOfBoolean[i3] = true;
 					}
-					if (i5 == i6) {
+					if (i5 != -1 && i5 == i6) {
 						arrayOfBoolean[i5] = true;
 					}
-					if (i5 == i3) {
+					if (i3 != -1 && i5 == i3) {
 						arrayOfBoolean[i3] = true;
 					}
 
 					if(i1 > 1)
-						int i7 = this.blocks[(i1 - 1),i2];
-					else int i7 = -1;
+						 i7 = this.blocks[(i1 - 1),i2];
+					else  i7 = -1;
 
 					if(i1 > 2)
-						int i8 = this.blocks[(i1 - 2),i2];
-					else int i8 = -1;
+						 i8 = this.blocks[(i1 - 2),i2];
+					else  i8 = -1;
 
 					if(i1 < 7)
-						int i9 = this.blocks[(i1 + 1),i2];
-					else int i9 = -1;
+						 i9 = this.blocks[(i1 + 1),i2];
+					else  i9 = -1;
 
 					if(i1 < 6)
-						int i10 = this.blocks[(i1 + 2),i2];
-					else int i10 = -1;
+						 i10 = this.blocks[(i1 + 2),i2];
+					else  i10 = -1;
 
-					if (i7 == i8) {
+					if (i7 != -1 && i7 == i8) {
 						arrayOfBoolean[i7] = true;
 					}
-					if (i9 == i10) {
+					if (i9 != -1 && i9 == i10) {
 						arrayOfBoolean[i9] = true;
 					}
-					if (i7 == i9) {
+					if (i7 != -1 && i7 == i9) {
 						arrayOfBoolean[i7] = true;
 					}
 					int i11 = UnityEngine.Random.Range(0,arrayOfBoolean.Length);
@@ -317,48 +351,46 @@ namespace AssemblyCSharp
 		public int checkMatchVertical(BlockNeedCheck block) {
 			int x = block.x;
 			int y = block.y;
-
-			if (this.blocks[x,y] >= 7) {
-				return 0;
-			}
+			
 			int countMatch = 1;
 			int numberBlock = 1;
 			int typeBlock = this.blocks[x,y];
+
 			//Check bot
-			while (typeBlock == this.blocks[x,(y - numberBlock)]) {
+			while (y >= numberBlock && typeBlock == this.blocks[x,(y - numberBlock)]) {
 				numberBlock++;
 				countMatch++;
 			}
 			block.top = numberBlock;
 			numberBlock = 1;
+
 			//Check top
-			while (typeBlock == this.blocks[x,(y + numberBlock)]) {
+			while ((y + numberBlock) < 8 && typeBlock == this.blocks[x,(y + numberBlock)]) {
 				numberBlock++;
 				countMatch++;
 			}
 			block.bottom = numberBlock;
 			return countMatch;
 		}
-
+		
 		//check match H
 		public int checkMatchHorizontal(BlockNeedCheck block) {
 			int x = block.x;
 			int y = block.y;
-			if (this.blocks[x,y] >= 7) {
-				return 0;
-			}
 			int countMatch = 1;
 			int numberBlock = 1;
 			int typeBlock = this.blocks[x,y];
+
 			//Check left
-			while (typeBlock == this.blocks[(x - numberBlock),y]) {
+			while (x >= numberBlock && typeBlock == this.blocks[(x - numberBlock),y]) {
 				numberBlock++;
 				countMatch++;
 			}
 			block.left = numberBlock;
 			numberBlock = 1;
+
 			//Check right
-			while (typeBlock == this.blocks[(x + numberBlock),y]) {
+			while ((x + numberBlock) < 8 && typeBlock == this.blocks[(x + numberBlock),y]) {
 				numberBlock++;
 				countMatch++;
 			}
