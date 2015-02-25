@@ -27,20 +27,31 @@ namespace AssemblyCSharp
 			blockNeedDestroys = new List<BlockNeedDestroy> ();
 			blockCanMoves = new List<BlockCanMove> ();
 			listGameObject = new GameObject[8, 8];
+			this.blocks = new int[8,8];
+
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						this.blocks[i,j] = -1;
+				}
+				}
+			
 		}
 
 		public void moveBlock(int x1, int y1, int x2, int y2)
 		{
+			if(this.blocks[x1,y1] == this.blocks[x2,y2]) return;
 			this.swapBlock(x1,y1,x2,y2);
 			blockNeedChecks.Add(new BlockNeedCheck(x1,y1));
 			blockNeedChecks.Add(new BlockNeedCheck(x2,y2));
 
 			//Call check ...
 			multiply = 1;
+			 
 			while (blockNeedChecks.Count != 0)
 			{
 				checkMatch();
 				destroysBlock();
+
 				multiply++;
 			}
 
@@ -62,6 +73,16 @@ namespace AssemblyCSharp
 				}
 			}
 		}
+
+		public void checkAllBlock()
+		{
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+					blockNeedChecks.Add(new BlockNeedCheck(i,j));
+				}
+			}
+		}
+
 
 		private BlockCanMove checkCanMove(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
 			return null;
@@ -128,7 +149,8 @@ namespace AssemblyCSharp
 		}
 
 		public void destroysBlock()
-		{
+		{       
+			blockNeedDestroys.Sort();
 			//Get list destroys , add scores
 			int length = blockNeedDestroys.Count;
 			for(int i = 0; i< length; i++)
@@ -138,16 +160,23 @@ namespace AssemblyCSharp
 
 				BasicBlock scriptBlock = listGameObject [blockDestroy.x,blockDestroy.y].GetComponent<BasicBlock> ();
 				scriptBlock.destroysBlock();
+				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
 			}
 
 			for(int i = 0; i< length; i++)
 			{
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
-				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
 				updatePlayer(blockDestroy.type);
-				moveDown(blockDestroy.x,blockDestroy.y);
-			}
+				if(this.blocks[blockDestroy.x,blockDestroy.y] == -1)
+				{
 
+					moveDown(blockDestroy.x,blockDestroy.y);									
+				}
+			}
+			if(length != 0)
+			{
+				checkAllBlock();
+			}
 			blockNeedDestroys.Clear ();
 		}
 
@@ -163,28 +192,20 @@ namespace AssemblyCSharp
 		}
 		public void moveDown(int x, int y)
 		{
+		
 			for(int i = y; i > 0; i--)
 			{
 				this.blocks[x,i] = this.blocks[x,i-1];
 				//TODO : Update position game object
-				//BasicBlock scriptBlock = listGameObject [x,i].GetComponent<BasicBlock> ();
-				//scriptBlock.y = i-1;
-				//this.swapBlock(x,i,x,i-1);
-
 				listGameObject [x, i] = listGameObject [x, i-1];
 				BasicBlock scriptBlock = listGameObject [x, i].GetComponent<BasicBlock> ();
 				scriptBlock.updatePosition (x,i);
-
-				//scriptBlock.updatePosition (-x,i);
-
-				//Add this block to list need check
-				//blockNeedChecks.Add(new BlockNeedCheck(x,i));
 			}
-			//blockNeedChecks.Add(new BlockNeedCheck(x,0));
 
-			this.blocks[x,0] = generateBlockType();
-			//TODO : Create game object
-			this.generateBlockType(x,0,this.blocks[x,0]);
+			int newTypeBlock = generateBlockType();
+			this.blocks[x,0] = newTypeBlock == 6? 0: newTypeBlock; 
+			//TODO : Create game object 
+			this.generateBlockType(x,0,newTypeBlock);
 		}
 
 		public void generateBlockType(int x, int y, int type)
@@ -197,7 +218,7 @@ namespace AssemblyCSharp
 
 		public int generateBlockType()
 		{
-			int typeBlock = UnityEngine.Random.Range(0,5);
+			int typeBlock = UnityEngine.Random.Range(0,6);
 			if ((typeBlock == 0) && (UnityEngine.Random.Range(0,100) < 11)) {
 				typeBlock = 6;
 			}
@@ -224,7 +245,7 @@ namespace AssemblyCSharp
 
 		public void generateBoard()
 		{
-			this.blocks = new int[8,8];
+
 			int blockTypeList = 6;
 			int m;
 			int i;
@@ -234,17 +255,19 @@ namespace AssemblyCSharp
 				opp = !opp;//
 				while (m < 8) {
 					this.blocks[i,m] = UnityEngine.Random.Range(0,blockTypeList);//0->5.0
-					this.generateBlockType(i,m,this.blocks[i,m]);
+					//this.generateBlockType(i,m,this.blocks[i,m]);
 					m += 2;
 				}
 			}
+
 			i = UnityEngine.Random.Range(0,3) + 2 + 2;
 			m = UnityEngine.Random.Range(0,4) + 1 + 2;
 			//Maybe default 7
-			if (this.blocks[i,m] != 7) {
+			if (this.blocks[i,m] != -1) {
 				i--;
 			}
-			int n = UnityEngine.Random.Range(0,6);
+			int n = UnityEngine.Random.Range(0,3);
+			Debug.Log(i +"/"+m+"/"+ n);
 			//Random can move
 			switch (n) {
 				case 0:
@@ -274,7 +297,7 @@ namespace AssemblyCSharp
 				int i2 = opp ? 1 : 0;
 				opp = !opp;//
 				while (i2 < 8) {
-					bool[] arrayOfBoolean = new bool[6];
+					bool[] arrayOfBoolean = new bool[blockTypeList];
 					int i3,i4,i5,i6,i7,i8,i9,i10;
 					if(i2 > 1)
 						 i3 = this.blocks[i1,(i2 - 1)];
@@ -327,15 +350,21 @@ namespace AssemblyCSharp
 					if (i7 != -1 && i7 == i9) {
 						arrayOfBoolean[i7] = true;
 					}
-					int i11 = UnityEngine.Random.Range(0,arrayOfBoolean.Length);
+					int i11 = UnityEngine.Random.Range(0,blockTypeList);
 					if (arrayOfBoolean[i11]) {
 						do {
 							i11 = (i11 + 1) % arrayOfBoolean.Length;
 						} while (arrayOfBoolean[i11]);
 					}
 					this.blocks[i1,i2] = i11;
-					this.generateBlockType(i1,i2,i11);
+					//this.generateBlockType(i1,i2,i11);
 					i2 += 2;
+				}
+			}
+
+			for (i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+					this.generateBlockType(i,j,this.blocks[i,j]);
 				}
 			}
 		}

@@ -52,7 +52,7 @@ public class BasicBlock: MonoBehaviour{
 						if (Input.touchCount > 0) {
 								if (checkTouch (Input.GetTouch (0).position)) {
 										Block select1 = Hero.getInstance ().select1;
-										if (select1 != null && Mathf.Abs (x - select1.x) + Mathf.Abs (y - select1.y) > 1) {
+										if (select1 != null && (Mathf.Abs (x - select1.x) + Mathf.Abs (y - select1.y)) == 1) {
 											Hero.getInstance ().select2 = new Block (x, y);
 											Hero.getInstance ().moveSelectBlock ();
 										} else {
@@ -68,10 +68,10 @@ public class BasicBlock: MonoBehaviour{
 												if (select1 != null && (Mathf.Abs (x - select1.x) + Mathf.Abs (y - select1.y)) == 1) {
 														Hero.getInstance ().select2 = new Block (x, y);
 														Hero.getInstance ().moveSelectBlock ();
-							Debug.Log("Click 2: ("+x+","+y+")");
+							//Debug.Log("Click 2: ("+x+","+y+")");
 												} else {
 														Hero.getInstance ().select1 = new Block (x, y);
-							Debug.Log("Click 1: ("+x+","+y+")");
+							//Debug.Log("Click 1: ("+x+","+y+")");
 												}
 										}
 								}
