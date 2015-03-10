@@ -43,14 +43,22 @@ public class BasicBlock: MonoBehaviour{
 	// Update is called once per frame
 	void Update () 
 	{
+
 		Vector3 fixPosition = new Vector3 (x * 0.84f - 2.95f, 3.9f - y * 0.84f, 0f);
-		if (!Vector3.Equals (fixPosition, this.transform.position)) {
-				this.transform.position = fixPosition;
+		if (!Vector3.Equals(fixPosition, this.transform.position)) {
+
+			//fixPosition.y += 0.001f*Time.deltaTime;
+			//fixPosition.x += 0.001f*Time.deltaTime;
+			this.transform.position = fixPosition;
 		} else {
+			if (Board.getInstance ().processing) 
+			{
+				return;
+			}
 				RuntimePlatform platform = Application.platform;
 				if (platform == RuntimePlatform.Android || platform == RuntimePlatform.IPhonePlayer) {
 						if (Input.touchCount > 0) {
-								if (checkTouch (Input.GetTouch (0).position)) {
+					if (Input.GetTouch (0).phase == TouchPhase.Began && checkTouch (Input.GetTouch (0).position)) {
 										Block select1 = Hero.getInstance ().select1;
 										if (select1 != null && (Mathf.Abs (x - select1.x) + Mathf.Abs (y - select1.y)) == 1) {
 											Hero.getInstance ().select2 = new Block (x, y);

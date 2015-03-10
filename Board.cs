@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
 namespace AssemblyCSharp
 {
 	public class Board
 	{
 		//Board
+		public bool processing = false;
 		int [,] blocks;
 		List<BlockNeedCheck> blockNeedChecks;
 		List<BlockNeedDestroy> blockNeedDestroys;
@@ -46,16 +48,21 @@ namespace AssemblyCSharp
 
 			//Call check ...
 			multiply = 1;
-			 
-			while (blockNeedChecks.Count != 0)
-			{
-				checkMatch();
-				destroysBlock();
+			processing = true; 
+			processBlocks ();
+		}
 
-				multiply++;
+		public void processBlocks()
+		{
+			checkMatch();
+			destroysBlock();
+			multiply++;
+			if(blockNeedChecks.Count == 0)
+			{
+				processing = false; 
+				updateListCanMove();
 			}
 
-			updateListCanMove();
 		}
 
 		public void updateListCanMove()

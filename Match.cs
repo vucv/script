@@ -23,19 +23,24 @@ namespace AssemblyCSharp
 
 		public void Update()
 		{
-			//if(Board.getInstance())
-			//{
-				//rematch
-			//}
-			switch (turnToken)
+			if (Board.getInstance ().processing) 
 			{
-			case 0:
-				//Player
-				break;
-			case 1:
-				//AI
-				AI.getInstance().startAI();
-				break;
+				Board.getInstance ().processBlocks();
+			} 
+			else {
+					//if(Board.getInstance())
+					//{
+					//rematch
+					//}
+					switch (turnToken) {
+					case 0:
+	//Player
+							break;
+					case 1:
+	//AI
+							AI.getInstance ().startAI ();
+							break;
+					}
 			}
 		}
 
