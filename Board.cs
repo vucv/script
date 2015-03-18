@@ -38,7 +38,7 @@ namespace AssemblyCSharp
 						this.blocks[i,j] = -1;
 				}
 				}
-			
+
 		}
 
 		public void moveBlock(int x1, int y1, int x2, int y2)
@@ -50,7 +50,7 @@ namespace AssemblyCSharp
 
 			//Call check ...
 			multiply = 1;
-			processing = true; 
+			processing = true;
 			isMoving = true;
 			processBlocks ();
 		}
@@ -65,10 +65,12 @@ namespace AssemblyCSharp
 
 			if (blockNeedChecks.Count == 0) {
 				multiply = 1;
-				processing = false; 
+				processing = false;
+
+				Match.getInstance().changeTurn();
 				updateListCanMove ();
-			} 
-			else 
+			}
+			else
 			{
 				multiply++;
 			}
@@ -77,6 +79,7 @@ namespace AssemblyCSharp
 
 		public void updateListCanMove()
 		{
+		    blockCanMoves.Clear ();
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
 					BlockCanMove block = checkCanMove(i, j, i + 1, j);
@@ -101,8 +104,84 @@ namespace AssemblyCSharp
 		}
 
 
-		private BlockCanMove checkCanMove(int paramInt1, int paramInt2, int paramInt3, int paramInt4) {
-			return null;
+		private BlockCanMove checkCanMove(int x1, int y1, int x2, int y2) {
+			if(this.blocks[x1,y1] == this.blocks[x1,y1]
+			{
+			    return null;
+			}
+
+			if(x2 > 8 || y2 >8)
+            {
+                return null;
+            }
+
+            //swap
+            this.swapBlock(x1,y1,x2,y2);
+
+            BlockNeedCheck block1 = new BlockNeedCheck(x1,y1));
+            BlockNeedCheck block2 = new BlockNeedCheck(x2,y2));
+
+            int H1 = block1.left + block1.right -1;
+            int V1 = block1.top + block1.bottom -1;
+
+            int H2 = block2.left + block2.right -1;
+            int V2 = block2.top + block2.bottom -1;
+            int point = 0;
+            if(V1 > 3 || H1 > 3)
+            {
+                point+=1;
+            }
+
+            if(V1 > 3 || H1 > 3)
+            {
+                point+=1;
+            }
+
+            if(H1>4 || V1>4 )
+            {
+               point+=1;
+            }
+
+            if(H2>4 || V2>4 )
+            {
+               point+=1;
+            }
+
+            if(H1>5 || V1>5 )
+            {
+               point+=1;
+            }
+
+            if(H2>5 || V2>5 )
+            {
+               point+=1;
+            }
+
+
+            //Re swap
+            this.swapBlock(x1,y1,x2,y2);
+            if(point > 0)
+            {
+                BlockCanMove blockCanMove = new BlockCanMove();
+                blockCanMove.x1 = x1;
+                blockCanMove.y1 = y1;
+                blockCanMove.x2 = x2;
+                blockCanMove.y2 = y2;
+                blockCanMove.point = point;
+
+                return blockCanMove;
+            }
+            else
+            {
+                return null;
+            }
+		}
+
+		private void swap(int x1, int y1, int x2, int y2)
+		{
+		    int temp = this.blocks[x1,y1];
+            this.blocks[x1,y1] = this.blocks[x2,y2];
+            this.blocks[x2,y2] = temp;
 		}
 
 		//Check all list needed
@@ -166,7 +245,7 @@ namespace AssemblyCSharp
 		}
 
 		public void destroysBlock()
-		{       
+		{
 			blockNeedDestroys.Sort();
 			//Get list destroys , add scores
 			int length = blockNeedDestroys.Count;
@@ -188,7 +267,7 @@ namespace AssemblyCSharp
 				updatePlayer(blockDestroy.type);
 				if(this.blocks[blockDestroy.x,blockDestroy.y] == -1)
 				{
-					moveDown(blockDestroy.x,blockDestroy.y);									
+					moveDown(blockDestroy.x,blockDestroy.y);
 				}
 			}
 			if(length != 0)
@@ -210,7 +289,7 @@ namespace AssemblyCSharp
 		}
 		public void moveDown(int x, int y)
 		{
-		
+
 			for(int i = y; i > 0; i--)
 			{
 				this.blocks[x,i] = this.blocks[x,i-1];
@@ -221,8 +300,8 @@ namespace AssemblyCSharp
 			}
 
 			int newTypeBlock = generateBlockType();
-			this.blocks[x,0] = newTypeBlock == 6? 0: newTypeBlock; 
-			//TODO : Create game object 
+			this.blocks[x,0] = newTypeBlock == 6? 0: newTypeBlock;
+			//TODO : Create game object
 			this.generateBlockTypeAt(x,0,newTypeBlock);
 		}
 
@@ -243,7 +322,7 @@ namespace AssemblyCSharp
 
 		public void generateBlockType(int x, int y, int type)
 		{
-			
+
 			listGameObject[x,y] = (GameObject)GameObject.Instantiate(Resources.Load<GameObject>("prefabs/BlockBasic"));
 			BasicBlock scriptBlock = listGameObject [x, y].GetComponent<BasicBlock> ();
 			scriptBlock.init(x,y,type);
@@ -279,7 +358,6 @@ namespace AssemblyCSharp
 
 		public void generateBoard()
 		{
-
 			int blockTypeList = 6;
 			int m;
 			int i;
@@ -414,7 +492,7 @@ namespace AssemblyCSharp
 		public int checkMatchVertical(BlockNeedCheck block) {
 			int x = block.x;
 			int y = block.y;
-			
+
 			int countMatch = 1;
 			int numberBlock = 1;
 			int typeBlock = this.blocks[x,y];
@@ -435,7 +513,7 @@ namespace AssemblyCSharp
 			block.bottom = numberBlock;
 			return countMatch;
 		}
-		
+
 		//check match H
 		public int checkMatchHorizontal(BlockNeedCheck block) {
 			int x = block.x;

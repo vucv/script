@@ -8,6 +8,7 @@ namespace AssemblyCSharp
 		public int x2;
 		public int y2;
 		public int[] e = new int[4];
+		public int point;
 	}
 
 }
