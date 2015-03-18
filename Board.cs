@@ -244,12 +244,27 @@ namespace AssemblyCSharp
 			blockNeedChecks.Clear ();
 		}
 
+        private void swordRedExplore(int x, int y)
+        {
+            int countX = blockDestroy.x > 1: blockDestroy.x: 0;
+            int countY = blockDestroy.y > 1: blockDestroy.y: 0;
+
+            for(int i = countX; i<3 || countX <8; i++ )
+            {
+                for(int j = countY; j<3 || countY <8; j++ )
+                {
+                    blockNeedDestroys.Add(new BlockNeedDestroy(i,j));
+                    countY++;
+                }
+                countX++;
+            }
+        }
+
 		public void destroysBlock()
 		{
-			blockNeedDestroys.Sort();
+			//blockNeedDestroys.Sort();
 			//Get list destroys , add scores
-			int length = blockNeedDestroys.Count;
-			for(int i = 0; i< length; i++)
+			for(int i = 0; i< blockNeedDestroys.Count; i++)
 			{
 				//TODO : Destroy game object & create effect
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
@@ -257,11 +272,17 @@ namespace AssemblyCSharp
 				BasicBlock scriptBlock = listGameObject [blockDestroy.x,blockDestroy.y].GetComponent<BasicBlock> ();
 				scriptBlock.destroysBlock();
 				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
+
+				if(scriptBlock.type == 6)
+				{
+				    swordRedExplore(blockDestroy.x,blockDestroy.y);
+				}
 				isDetroying = true;
 				isMoving = true;
 			}
 
-			for(int i = 0; i< length; i++)
+            blockNeedDestroys.Sort();
+			for(int i = 0; i< blockNeedDestroys.Count; i++)
 			{
 				BlockNeedDestroy blockDestroy = blockNeedDestroys[i];
 				updatePlayer(blockDestroy.type);
@@ -270,7 +291,7 @@ namespace AssemblyCSharp
 					moveDown(blockDestroy.x,blockDestroy.y);
 				}
 			}
-			if(length != 0)
+			if(blockNeedDestroys.Count != 0)
 			{
 				checkAllBlock();
 			}
