@@ -8,13 +8,15 @@ namespace AssemblyCSharp
 	public class Board
 	{
 		//Board
+		public bool isMoving = false;
+		public bool isDetroying = false;
 		public bool processing = false;
 		int [,] blocks;
 		List<BlockNeedCheck> blockNeedChecks;
 		List<BlockNeedDestroy> blockNeedDestroys;
 		List<BlockCanMove> blockCanMoves;
-		GameObject [,] listGameObject;
-		int multiply;
+		public GameObject [,] listGameObject;
+		public int multiply;
 		private static Board INSTANCE;
 		public static Board getInstance()
 		{
@@ -49,18 +51,26 @@ namespace AssemblyCSharp
 			//Call check ...
 			multiply = 1;
 			processing = true; 
+			isMoving = true;
 			processBlocks ();
 		}
 
 		public void processBlocks()
 		{
+
+			if (isMoving || isDetroying)
+				return;
 			checkMatch();
 			destroysBlock();
-			multiply++;
-			if(blockNeedChecks.Count == 0)
-			{
+
+			if (blockNeedChecks.Count == 0) {
+				multiply = 1;
 				processing = false; 
-				updateListCanMove();
+				updateListCanMove ();
+			} 
+			else 
+			{
+				multiply++;
 			}
 
 		}
@@ -168,6 +178,8 @@ namespace AssemblyCSharp
 				BasicBlock scriptBlock = listGameObject [blockDestroy.x,blockDestroy.y].GetComponent<BasicBlock> ();
 				scriptBlock.destroysBlock();
 				this.blocks[blockDestroy.x,blockDestroy.y] = -1;
+				isDetroying = true;
+				isMoving = true;
 			}
 
 			for(int i = 0; i< length; i++)
@@ -176,7 +188,6 @@ namespace AssemblyCSharp
 				updatePlayer(blockDestroy.type);
 				if(this.blocks[blockDestroy.x,blockDestroy.y] == -1)
 				{
-
 					moveDown(blockDestroy.x,blockDestroy.y);									
 				}
 			}
@@ -212,11 +223,27 @@ namespace AssemblyCSharp
 			int newTypeBlock = generateBlockType();
 			this.blocks[x,0] = newTypeBlock == 6? 0: newTypeBlock; 
 			//TODO : Create game object 
-			this.generateBlockType(x,0,newTypeBlock);
+			this.generateBlockTypeAt(x,0,newTypeBlock);
+		}
+
+		public void generateBlockTypeAt(int x, int y, int type)
+		{
+
+			listGameObject[x,y] = (GameObject)GameObject.Instantiate(Resources.Load<GameObject>("prefabs/BlockBasic"));
+			BasicBlock scriptBlock = listGameObject [x, y].GetComponent<BasicBlock> ();
+			scriptBlock.init(x,y,type);
+
+			BasicBlock scriptBlockBelow = listGameObject [x, 1].GetComponent<BasicBlock> ();
+			float fixPositionY = scriptBlockBelow.transform.position.y + 0.84f;
+			if (fixPositionY < 4f)
+				fixPositionY += 0.84f;
+			scriptBlock.transform.position = new Vector3 (x * 0.84f - 2.95f, fixPositionY, 0f);
+			//set...
 		}
 
 		public void generateBlockType(int x, int y, int type)
 		{
+			
 			listGameObject[x,y] = (GameObject)GameObject.Instantiate(Resources.Load<GameObject>("prefabs/BlockBasic"));
 			BasicBlock scriptBlock = listGameObject [x, y].GetComponent<BasicBlock> ();
 			scriptBlock.init(x,y,type);

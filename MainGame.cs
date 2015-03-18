@@ -31,7 +31,7 @@ public class MainGame : MonoBehaviour {
 
 			if (Board.getInstance ().processing) 
 			{
-				StartCoroutine (wait (1f));
+				//StartCoroutine (wait (1f));
 			}
 		}
 		
