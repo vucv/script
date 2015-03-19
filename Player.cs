@@ -18,9 +18,59 @@ namespace AssemblyCSharp
 		}
 
 		// Return list block destroy
+		// Install effect
 		// Check condition before
 		public void useSkill(int skillNumber)
 		{
+		    List<BlockNeedDestroy> listBlockDestroy = new List<BlockNeedDestroy> ();
+		    // Check mana , tru mana
+
+            switch (skillNumber)
+             {
+                case 0://fire1
+                    // Add attack damage = n
+                    int x = UnityEngine.Random.Range(0,4) + 2;
+                    int y = UnityEngine.Random.Range(0,4) + 2;
+                    // Effect at x - 1, y - 1
+                    for (int i = x + 2; i >= x; i--) {
+                        for (int j = y + 2; j >= y; j--) {
+                            //Add list destroy
+                             listBlockDestroy.Add(new BlockNeedDestroy(i,j));
+                        }
+                    }
+                    break;
+                case 1://fire2
+                    // Add attack damage = n * 3 / 2
+                    i4 = 0;
+                    i5 = 2;
+                    i3 = 2;
+                    for (i6 = 3; i6 >= 0; i6--) {
+                        i4 = ay.a(4);
+                        i2 = i4 * 2 + 2;
+                        for (i7 = i2 + 1; i7 >= i2; i7--) {
+                            for (i8 = i3 + 1; i8 >= i3; i8--) {
+                                //Add list destroy
+                                //a(this.s.a(i7, i8), i7, i8, 1, 1, 1);
+                            }
+                        }
+                        if (((ay.a(2) == 0) && (i5 > 0)) || (i5 > i6)) {
+                            i5--;
+                            i4 = (i4 + 1 + ay.a(3)) % 4;
+                            i2 = i4 * 2 + 2;
+                            for (i7 = i2 + 1; i7 >= i2; i7--) {
+                                for (i8 = i3 + 1; i8 >= i3; i8--) {
+                                    //Add list destroy
+                                    //a(this.s.a(i7, i8), i7, i8, 1, 1, 1);
+                                }
+                            }
+                        }
+                        i3 += 2;
+                    }
+                    i6 = 3 + ay.a(3);
+                    h(i6, 4);
+                    break;
+            }
+
 			/*
 			int i1 = arrayOfInt[paramInt];
 			localbn1.a(localbn1.n() * (paramInt + 1) / 3, true);
@@ -44,10 +94,12 @@ namespace AssemblyCSharp
 					for (i4 = i2 + 2; i4 >= i2; i4--) {
 						for (i5 = i3 + 2; i5 >= i3; i5--) {
 							//Add list destroy
+
 							//a(this.s.a(i4, i5), i4, i5, 1, 1, 1);
 
 						}
 					}
+
 					break;
 				case 1://fire2
 					//a(localbn2, localbn1.m() * 3 / 2);
@@ -198,6 +250,7 @@ namespace AssemblyCSharp
 					}
 					break;
 			}
+			return listBlockDestroy;
 			this.C = this.t.a(i1, i, this.y, this.z);
 			bs.a().a(i1);
 		*/
